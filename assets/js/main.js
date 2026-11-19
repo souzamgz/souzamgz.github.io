@@ -610,6 +610,106 @@
     if (!canvas) {
       return;
     }
+
+    if (window.THREE) {
+      var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true, powerPreference: "high-performance" });
+      var scene = new THREE.Scene();
+      var camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+      camera.position.z = 0;
+      var starCount = 220;
+      var starPositions = new Float32Array(starCount * 3);
+      var starColors = new Float32Array(starCount * 3);
+      var starGeometry = new THREE.BufferGeometry();
+      starGeometry.setAttribute("position", new THREE.BufferAttribute(starPositions, 3));
+      starGeometry.setAttribute("color", new THREE.BufferAttribute(starColors, 3));
+      var starMaterial = new THREE.PointsMaterial({ size: 2, vertexColors: true, sizeAttenuation: true, transparent: true, opacity: 0.9, depthWrite: false, blending: THREE.AdditiveBlending });
+      var starField = new THREE.Points(starGeometry, starMaterial);
+      scene.add(starField);
+
+      for (var i = 0; i < starCount; i += 1) {
+        starPositions[i * 3] = (Math.random() - 0.5) * 1600;
+        starPositions[i * 3 + 1] = (Math.random() - 0.5) * 1600;
+        starPositions[i * 3 + 2] = -((Math.random() - 0.5) * 800);
+        var starRgb = starColor().split(",").map(Number);
+        var starColorValue = new THREE.Color(starRgb[0] / 255, starRgb[1] / 255, starRgb[2] / 255);
+        starColors[i * 3] = starColorValue.r;
+        starColors[i * 3 + 1] = starColorValue.g;
+        starColors[i * 3 + 2] = starColorValue.b;
+      }
+
+      starGeometry.attributes.position.needsUpdate = true;
+      starGeometry.attributes.color.needsUpdate = true;
+
+      function resize() {
+        var width = window.innerWidth;
+        var height = window.innerHeight;
+        renderer.setSize(width, height, false);
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+      }
+
+      var clock = new THREE.Clock();
+      var shootingStars = [];
+      var nextShoot = 0;
+      var shootGeometry = new THREE.BufferGeometry();
+      shootGeometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array(6), 3));
+      var shootMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending });
+      var shootLine = new THREE.Line(shootGeometry, shootMaterial);
+      scene.add(shootLine);
+
+      function animate() {
+        var time = clock.getElapsedTime();
+        camera.position.set(Math.sin(time * 0.32) * 0.7, Math.cos(time * 0.24) * 0.45, 0);
+        camera.lookAt(0, 0, 0);
+
+        if (!reducedMotion.matches) {
+          if (time >= nextShoot) {
+            shootingStars.push({
+              position: new THREE.Vector3(1500 * (0.2 + Math.random() * 0.7), 200 + Math.random() * 500, -100),
+              velocity: new THREE.Vector3(-(3 + Math.random() * 3), 2 + Math.random() * 2, 0)
+            });
+            nextShoot = time + 5000 + Math.random() * 7000;
+          }
+
+          for (var s = shootingStars.length - 1; s >= 0; s -= 1) {
+            var shot = shootingStars[s];
+            shot.position.add(shot.velocity);
+            if (shot.position.y > 900 || shot.position.x < -1700) {
+              shootingStars.splice(s, 1);
+            }
+            shootGeometry.setAttribute("position", new THREE.BufferAttribute([
+              shot.position.x,
+              shot.position.y,
+              shot.position.z,
+              shot.position.x - shot.velocity.x * 20,
+              shot.position.y - shot.velocity.y * 20,
+              shot.position.z - shot.velocity.z * 20
+            ], 3));
+            shootGeometry.attributes.position.needsUpdate = true;
+          }
+        }
+
+        renderer.render(scene, camera);
+      }
+
+      resize();
+      if (reducedMotion.matches) {
+        renderer.render(scene, camera);
+      } else {
+        renderer.setAnimationLoop(animate);
+      }
+
+      window.addEventListener("resize", resize);
+      window.msStarfield = {
+        refresh: function () {
+          if (reducedMotion.matches) {
+            renderer.render(scene, camera);
+          }
+        }
+      };
+      return;
+    }
+
     var context = canvas.getContext("2d");
     if (!context) {
       return;
@@ -921,6 +1021,32 @@
     }
   }
 
+  function initSmoothScroll() {
+    if (reducedMotion.matches) {
+      return;
+    }
+    if (typeof Lenis === "function") {
+      var lenis = new Lenis({ duration: 1.2, smoothWheel: true });
+      function lenisRaf(time) {
+        lenis.raf(time);
+        requestAnimationFrame(lenisRaf);
+      }
+      requestAnimationFrame(lenisRaf);
+    }
+  }
+
+  function initAnimations() {
+    if (reducedMotion.matches || typeof gsap === "undefined" || typeof ScrollTrigger === "undefined") {
+      return;
+    }
+    gsap.to(".orbit-system", {
+      scrollTrigger: { trigger: "#inicio", start: "start end", end: "end top", scrub: 0.5 },
+      y: 80,
+      opacity: 0.7,
+      ease: "none"
+    });
+  }
+
   function init() {
     var storedTheme = safeStorage("get", THEME_STORAGE);
     if (storedTheme === "light" || storedTheme === "dark") {
@@ -940,6 +1066,8 @@
     initCursorGlow();
     initScrollUi();
     initEvents();
+    initSmoothScroll();
+    initAnimations();
     loadProjects();
     updateMenuLabel();
   }
