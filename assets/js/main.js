@@ -6,6 +6,7 @@
   var currentLang = root.dataset.lang === "en" ? "en" : "pt";
   var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   var finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
+  var systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
 
   var header = document.getElementById("header");
   var themeToggle = document.getElementById("theme-toggle");
@@ -166,7 +167,7 @@
     var next = theme === "light" ? "light" : "dark";
     root.dataset.theme = next;
     if (metaThemeColor) {
-      metaThemeColor.setAttribute("content", next === "light" ? "#eef2ff" : "#060a18");
+      metaThemeColor.setAttribute("content", next === "light" ? "#f2e9ff" : "#09041a");
     }
     updateThemeLabel();
     if (persist) {
@@ -859,6 +860,16 @@
     themeToggle.addEventListener("click", function () {
       applyTheme(root.dataset.theme === "light" ? "dark" : "light", true);
     });
+
+    function followSystemTheme(event) {
+      applyTheme(event.matches ? "dark" : "light", true);
+    }
+
+    if (systemTheme.addEventListener) {
+      systemTheme.addEventListener("change", followSystemTheme);
+    } else if (systemTheme.addListener) {
+      systemTheme.addListener(followSystemTheme);
+    }
 
     var langButtons = document.querySelectorAll(".lang-button");
     for (var i = 0; i < langButtons.length; i += 1) {

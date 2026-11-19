@@ -5,7 +5,7 @@ Site pessoal e portfólio de **Miguel Souza**, publicado no GitHub Pages em <htt
 ## Recursos
 
 - Estética de galáxia com campo de estrelas em Canvas, nebulosas animadas e meteoros.
-- Tema escuro e claro, com preferência salva no navegador e respeito ao tema do sistema.
+- Tema escuro em roxo galáxia e tema claro em lavanda, com preferência salva e sincronização em tempo real com o tema do navegador/sistema.
 - Conteúdo em português e inglês, com troca instantânea e preferência persistida.
 - Seção de projetos alimentada pela API pública do GitHub, sempre atualizada.
 - Layout responsivo, navegação mobile, animações de entrada e efeitos de inclinação.
