@@ -37,8 +37,8 @@
 
 [data-theme="light"] {
   color-scheme: light;
-  --bg: #e9d8ff;
-  --bg-soft: #dfc8ff;
+  --bg: #d8c0f2;
+  --bg-soft: #cbb0ec;
   --surface: rgba(238, 224, 255, 0.62);
   --surface-strong: rgba(240, 226, 255, 0.94);
   --surface-soft: rgba(109, 40, 217, 0.085);
@@ -99,7 +99,7 @@ body {
     radial-gradient(1100px 700px at 82% -8%, rgba(168, 85, 247, 0.35), transparent 62%),
     radial-gradient(900px 620px at -5% 22%, rgba(244, 114, 182, 0.2), transparent 58%),
     radial-gradient(700px 500px at 55% 105%, rgba(34, 211, 238, 0.14), transparent 60%),
-    linear-gradient(180deg, #f1e3ff 0%, var(--bg) 52%, #edd9ff 100%);
+    linear-gradient(180deg, #f0e6ff 0%, var(--bg) 52%, #e2d0fb 100%);
 }
 
 ::selection {
